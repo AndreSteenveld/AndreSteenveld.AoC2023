@@ -1,19 +1,25 @@
 ﻿using System.Text.RegularExpressions;
 
-var result = Lines(Console.In)
-    .Select(Game.FromLine)
-    .Where(Game.IsValid)
-    .ToArray();
+var games = Console.In.ReadLines().Select(Game.FromLine).ToArray();
 
-Console.WriteLine( $"The there were [ { result.Count() } ] valid games. The sum of all game IDs is [{ result.Sum( game => game.Id ) }]");
+var valid_games = games.Where(Game.IsValid);
 
+var cubed_games = games
+    .Select( game => {
+        var (r, g, b) = game.Cubes();
+        return r * g * b;
+    });
 
-IEnumerable<string> Lines(TextReader reader){
-    for( var r = reader.ReadLine(); r is not null; r = reader.ReadLine())
-        yield return r;
-}
+Console.WriteLine( $"The there were [ { valid_games.Count() } ] valid games. The sum of all game IDs is [ { valid_games.Sum( game => game.Id ) } ]");
+Console.WriteLine( $"Summed value of all cubed game [ { cubed_games.Sum() } ]");
+
 
 public static class Extensions {
+
+    public static IEnumerable<string> ReadLines(this TextReader reader){
+        for( var line = reader.ReadLine(); line is not null; line = reader.ReadLine())
+            yield return line;
+    }
 
     public static string? MatchGroup(this Regex @this, string input) =>
         @this.Match(input).Groups.Values.ToArray() switch {
@@ -57,5 +63,15 @@ record Game(int Id, IEnumerable<(int red, int green, int blue)> Hands){
                 && green <= 13
                 && blue <= 14;
         });
+
+    public (int, int, int) Cubes() => 
+        Hands.Aggregate( 
+            (red:0, green:0, blue:0), 
+            (result, hand) => (
+                Math.Max(result.red,    hand.red),
+                Math.Max(result.green,  hand.green),
+                Math.Max(result.blue,   hand.blue)
+            )
+        );
 
 }
