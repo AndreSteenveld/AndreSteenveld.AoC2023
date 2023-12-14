@@ -12,11 +12,10 @@ var map = String.Concat(lines);
 var Number = new Regex("[1-9][0-9]*", RegexOptions.Compiled);
 var Component = new Regex("[^.0-9]{1}", RegexOptions.Compiled);
 
-List<Number> values = new (
+List<PartNumber> part_numbers = new (
     from match in Number.Matches(map)
-    
-    let value   = Int32.Parse(match.Value)
-    let box     = box_for_number(match.Index, match.Length)
+        
+    let box = box_for_number(match.Index, match.Length)
     
     let components =
         from index in box 
@@ -24,19 +23,32 @@ List<Number> values = new (
         where Component.IsMatch(component)
         select (index, component)
         
-    select new Number(match, value, box, components)
+    select new PartNumber(
+        Match   : match, 
+        Value   : Int32.Parse(match.Value), 
+        Box     : box, 
+        components
+    )
 );
 
-Console.WriteLine( $"Summed numbers are [ {values.Sum( n => n.Value * n.Components.Count() )} ]");
+var summed_part_numbers = Enumerable.Sum( from n in part_numbers select n.Value * n.Components.Count() );
 
-// foreach( var number in values){
-//     var (_, value, _, components) = number;
-//     Console.WriteLine("\t"
-//         + $"\t[ {value} ] -- " 
-//         + $"{{{ String.Join(", ", from c in components select c.component)}}}"
-//     );
-// }
+Console.WriteLine( $"Summed part numbers are [ { summed_part_numbers} ]");
+
+var gear_ratios = 
+    from part_number in part_numbers
+    from component in part_number.Components
+    where component.component == "*"
     
+    group part_number.Value by component.index into component_numbers_or_ratios
+    
+    where component_numbers_or_ratios.Count() == 2
+    select component_numbers_or_ratios.Aggregate((l,r) => l * r)
+    ;
+
+Console.WriteLine($"The summed gear ratios are [ { gear_ratios.Sum() } ]");
+
+
 HashSet<int> box_for_number(int start, int length){
     
     var boxes = 
@@ -83,4 +95,4 @@ public static class Extensions {
 
 }
 
-public record Number( Match Match, int Value, HashSet<int> Box, IEnumerable<(int index, string component)> Components );
+public record PartNumber( Match Match, int Value, HashSet<int> Box, IEnumerable<(int index, string component)> Components );
