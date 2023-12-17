@@ -5,5 +5,4 @@
 !*/*.cs
 !*/*.csproj
 !*/input*
-!*/sample-1
-!*/sample-2
+!*/sample-*
