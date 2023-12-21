@@ -17,7 +17,16 @@ public static partial class EnumerableExtensions {
     public static IEnumerable<(TSource item, int index)> WithIndex<TSource>(this IEnumerable<TSource> source) =>
         source.Select(ValueTuple.Create<TSource, int>);
 
-    #region Tuple splatting select
+    public static IEnumerable<TSource> Repeat<TSource>(this IEnumerable<TSource> source){
+        while(true)
+            foreach(var item in source)
+                yield return item;
+    }
+
+    public static IEnumerable<TResult> Select<TSource, TResult>(this IEnumerable<TSource> source, TResult initial, Func<TResult, TSource, int, TResult> selector) =>
+        source.Select((item, index) => initial = selector(initial, item, index));
+
+    #region Tuple splatting Select
     public static IEnumerable<TResult> Select<T1, T2, TResult>(this IEnumerable<(T1, T2)> source, Func<T1, T2, TResult> selector)
         => source.Select( t => selector(t.Item1, t.Item2) );
 
@@ -38,4 +47,23 @@ public static partial class EnumerableExtensions {
 
     #endregion
 
+    #region Tuple splatting First
+    public static (T1, T2) First<T1, T2>(this IEnumerable<(T1, T2)> source, Func<T1, T2, bool> predicate) => 
+        source.First( t => predicate(t.Item1, t.Item2) );
+
+    public static (T1, T2, T3) First<T1, T2, T3>(this IEnumerable<(T1, T2, T3)> source, Func<T1, T2, T3, bool> predicate) => 
+        source.First( t => predicate(t.Item1, t.Item2, t.Item3) );
+
+    public static (T1, T2, T3, T4) First<T1, T2, T3, T4>(this IEnumerable<(T1, T2, T3, T4)> source, Func<T1, T2, T3, T4,bool> predicate) => 
+        source.First( t => predicate(t.Item1, t.Item2, t.Item3, t.Item4) );
+
+    public static (T1, T2, T3, T4, T5) First<T1, T2, T3, T4, T5>(this IEnumerable<(T1, T2, T3, T4, T5)> source, Func<T1, T2,  T3, T4, T5, bool> predicate) => 
+        source.First( t => predicate(t.Item1, t.Item2, t.Item3, t.Item4, t.Item5) );
+
+    public static (T1, T2, T3, T4, T5, T6) First<T1, T2, T3, T4, T5, T6>(this IEnumerable<(T1, T2, T3, T4, T5, T6)> source, Func<T1, T2, T3, T4, T5, T6, bool> predicate) => 
+        source.First( t => predicate(t.Item1, t.Item2, t.Item3, t.Item4, t.Item5, t.Item6) );
+
+    public static (T1, T2, T3, T4, T5, T6, T7) First<T1, T2, T3, T4, T5, T6, T7>(this IEnumerable<(T1, T2, T3, T4, T5, T6, T7)> source, Func<T1, T2, T3, T4, T5, T6, T7, bool> predicate) => 
+        source.First( t => predicate(t.Item1, t.Item2, t.Item3, t.Item4, t.Item5, t.Item6, t.Item7) );
+    #endregion
 }
