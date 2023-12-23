@@ -23,8 +23,25 @@ public static partial class EnumerableExtensions {
                 yield return item;
     }
 
+    public static IEnumerable<TSource> Lag<TSource>(this IEnumerable<TSource> source, Func<TSource, TSource, int, TSource> selector) =>
+        source.Select(source.First(), selector);
+
+    public static IEnumerable<TSource> Lag<TSource>(this IEnumerable<TSource> source, Func<TSource, TSource, TSource> selector) =>
+        source.Select(source.First(), selector);
+
+    public static IEnumerable<TResult> Select<TSource, TResult>(this IEnumerable<TSource> source, TResult initial, Func<TResult, TSource, TResult> selector) =>
+        source.Select((item) => initial = selector(initial, item));
+
     public static IEnumerable<TResult> Select<TSource, TResult>(this IEnumerable<TSource> source, TResult initial, Func<TResult, TSource, int, TResult> selector) =>
         source.Select((item, index) => initial = selector(initial, item, index));
+
+    public static IEnumerable<TSource> Next<TSource>(this IEnumerable<TSource> source, Func<TSource, TSource> selector){
+        
+        for(var last = selector(source.Last()); true; last = selector(last))
+            yield return last;
+
+    }
+
 
     #region Tuple splatting Select
     public static IEnumerable<TResult> Select<T1, T2, TResult>(this IEnumerable<(T1, T2)> source, Func<T1, T2, TResult> selector)
