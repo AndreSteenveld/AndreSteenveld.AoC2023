@@ -38,7 +38,6 @@ public static partial class Functions {
 
     }
 
-
     public static TSource[] From<TSource>(params TSource[] source) => source;
 
     public static IEnumerable<TSource> Repeat<TSource>(params TSource[] source) => source.Repeat();
@@ -51,7 +50,7 @@ public static partial class Functions {
         return values;
     }
 
-     public static void WaitForDebugger(){
+    public static void WaitForDebugger(){
         if(Environment.GetEnvironmentVariable("DOTNET_WAIT_FOR_DEBUGGER") == "1"){
             Console.WriteLine("Waiting for debugger to attach...");
             
@@ -66,6 +65,5 @@ public static partial class Functions {
     public static int multiplication(int l, int r) => l * r;
     public static int division(int l, int r) => l / r;
     public static int modulus(int l, int r) => l % r;
-
 
 }
